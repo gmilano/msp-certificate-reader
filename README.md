@@ -1,43 +1,16 @@
 # msp-certificate-reader
 
-Provide an implementation as a AWS Lambda Function to read a UY vaccination certificate.
+The aim of this repository is provide a code that can be reused or improved to read UY vaccination certificate and on the other hand provide a Serverless architecture that host an instance of this service, so that if you don't mind to use a AWS hosted service for reading certificates you can use the one I hosted in my account.
 
+The infrastructure is provisioned using AWS CDK so you can see the code of the infra, and deploy it on your own AWS cloud.
 
 The service receive the certificate in pdf, scan the QR inside it and return the information in json format.
 
-If you are an Online Ticketing system and do you want to validate a given certificate you can use this service. 
+If you have an Online Ticketing or similar system and do you want to read a UY vaccination certificate you can use this service. 
 
 Feel free to deploy this service in your own infrastructure or use the provided infrastructure. 
 
-
-# Configuration
-
-In order to set AWS Credentials
-
-
-aws config 
-
-
-# Build
-
-```
-cd infraestructure
-mvn package
-```
-
-# Deploy
-
-```
-cd infraestructure
-cdk deploy
-```
-
-# Runtime
-
-Be sure to set an environment variable "pubkey" in your Lambda AWS environment. 
-The public key is provided by AGESIC.
-
-# Live Service that you can use to send PDFs and read the QR Data programatically
+# I just want to use your hosted service
 
 ## Commandline
 ```
@@ -107,5 +80,49 @@ When success the Http Code is 200 and the return body is the information inside 
     }
 }
 ```
+
+# I want to deploy this service in my own AWS Account
+
+# Recommendations
+
+Install at least
+
+Java 11 & JDK
+VS Code
+AWS Toolkit
+Maven
+Docker
+
+This project was developed in a Mac OSX so I don't know if this is working in a Windows box.
+
+# Configuration
+
+In order to set AWS Credentials
+
+aws config 
+
+
+# Build
+
+```
+cd infraestructure
+mvn package
+```
+
+# Deploy
+
+```
+cd infraestructure
+cdk deploy
+```
+
+# Runtime
+
+Be sure to set an environment variable "pubkey" in your Lambda AWS environment. 
+The public key is provided by AGESIC.
+
+# Live Service that you can use to send PDFs and read the QR Data programatically
+
+
 
 
