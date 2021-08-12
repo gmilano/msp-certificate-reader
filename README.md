@@ -121,7 +121,7 @@ cdk deploy
 Be sure to set an environment variable "pubkey" in your Lambda AWS environment. 
 The public key is provided by AGESIC.
 
-# Live Service that you can use to send PDFs and read the QR Data programatically
+
 
 
 
