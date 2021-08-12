@@ -39,11 +39,13 @@ The public key is provided by AGESIC.
 
 # Live Service that you can use to send PDFs and read the QR Data programatically
 
+## Commandline
 ```
 curl --request POST 'https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate' \
 --data-binary '@/Users/gmilano/Documents/Genexus/qrvacunas/certificadogaston.pdf'
 ```
 
+## Javascript
 ```javascript
 var myHeaders = new Headers();
 myHeaders.append("Content-Type", "application/pdf");
@@ -63,6 +65,7 @@ fetch("https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate", request
   .catch(error => console.log('error', error));
  ```
  
+ ## Java
  ```java
  OkHttpClient client = new OkHttpClient().newBuilder()
   .build();
