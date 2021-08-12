@@ -1,0 +1,17 @@
+software/FunctionOne/.settings/org.eclipse.core.resources.prefs
+software/FunctionOne/.settings/org.eclipse.jdt.apt.core.prefs
+software/FunctionOne/.settings/org.eclipse.jdt.core.prefs
+software/FunctionOne/.settings/org.eclipse.m2e.core.prefs
+software/FunctionOne/.factorypath
+software/FunctionOne/.project
+software/FunctionOne/target/FunctionOne-1.0.jar
+software/FunctionOne/target/functionone.jar
+software/FunctionOne/target/classes/msputils/App.class
+software/FunctionOne/target/classes/msputils/App$AjcClosure1.class
+software/FunctionOne/target/classes/msputils/App$AjcClosure3.class
+software/FunctionOne/target/classes/msputils/App$AjcClosure5.class
+software/FunctionOne/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+software/FunctionOne/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+software/FunctionOne/target/maven-archiver/pom.properties
+software/FunctionOne/target/classes/builddef.lst
+software/FunctionOne/.classpath
