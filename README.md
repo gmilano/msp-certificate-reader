@@ -87,11 +87,11 @@ When success the Http Code is 200 and the return body is the information inside 
 
 Install at least
 
-Java 11 & JDK
-VS Code
-AWS Toolkit
-Maven
-Docker
+- Java 11 & JDK
+- VS Code
+- AWS Toolkit
+- Maven
+- Docker
 
 This project was developed in a Mac OSX so I don't know if this is working in a Windows box.
 
@@ -118,7 +118,8 @@ cdk deploy
 
 # Runtime
 
-Be sure to set an environment variable "pubkey" in your Lambda AWS environment. 
+Be sure to set an environment variable "pubkey" in your Lambda AWS environment. [Set Env var in AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html)
+
 The public key is provided by AGESIC.
 
 
