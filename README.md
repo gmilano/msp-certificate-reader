@@ -7,7 +7,7 @@ The service receive the certificate in pdf, scan the QR inside it and return the
 
 If you are an Online Ticketing system and do you want to validate a given certificate you can use this service. 
 
-Feel free to deploy this service in your own infraestructure or use the provided infraestructure. 
+Feel free to deploy this service in your own infrastructure or use the provided infrastructure. 
 
 
 # Configuration
