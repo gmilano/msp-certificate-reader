@@ -81,6 +81,9 @@ Response response = client.newCall(request).execute();
 
 ## Output 
 
+When success the Http Code is 200 and the return body is the information inside the QR Code
+
+
 ```javascript
 {
     "Date": "2021-08-12",
