@@ -44,8 +44,6 @@ public class InfrastructureStack extends Stack {
                 "&& cp /asset-input/FunctionOne/target/functionone.jar /asset-output/"
         );
 
-     
-
         BundlingOptions.Builder builderOptions = BundlingOptions.builder()
                 .command(functionOnePackagingInstructions)
                 .image(Runtime.JAVA_11.getBundlingImage())

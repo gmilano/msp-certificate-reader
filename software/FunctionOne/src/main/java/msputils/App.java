@@ -1,11 +1,11 @@
 package msputils;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipException;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -19,7 +19,6 @@ import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.json.JSONObject;
 import se.digg.dgc.encoding.impl.DefaultBarcodeDecoder;
 import se.digg.dgc.signatures.cose.CoseSign1_Object;
-import se.digg.dgc.signatures.cwt.Cwt;
 import java.security.PublicKey;
 import java.io.ByteArrayOutputStream;
 import java.security.SignatureException;
@@ -53,30 +52,33 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         logger.log("Starting request");
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
-        headers.put("X-Custom-Header", "application/json");
-
    
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(headers);
         try {
-             String pageContents;
+            String pageContents;
+            String pubKey = System.getenv("pubkey");
             if (input != null && input.getIsBase64Encoded())
             {
-                logger.log("env:" + System.getenv("pubkey"));
-                
                 String pdfContents64 = input.getBody();
-                pageContents = validatePDFVaccineCertificate(System.getenv("pubkey"), pdfContents64, logger);
+                pageContents = validatePDFVaccineCertificate(pubKey, pdfContents64, logger);
                 return response
                         .withStatusCode(200)
-                        .withBody(pageContents.substring(1, pageContents.length() - 1).replace("\\", ""));
+                        .withBody(pageContents);
             }
             else
             {
+                if (input != null && input.getBody() != null) {
+                    var content = input.getBody();
+                    if (content != null && content.length() > 0) {
+                        return response.withStatusCode(200).withBody(extractFromQRContent(pubKey, logger, content));
+                    }
+                 }
                 return response
                 .withStatusCode(200)
                 .withBody(String.format("{ \"code\": \"400\", \"info\": \"%s\" }", "Invalid format"));
             }
-        } catch (SignatureException | CertificateException e) {
+        } catch (SignatureException  | ZipException e) {
             return response
             .withBody(e.getMessage())
             .withStatusCode(500);
@@ -84,7 +86,6 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
     }
 
  
-   
     public static PublicKey generatePublicKey(String pubkey, LambdaLogger logger){
         try{
             String pubKeyPEM = pubkey;
@@ -99,43 +100,58 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         }
     }
 
-  
-    public static String validateSigned(String publicKey, String data, LambdaLogger logger) throws IOException, SignatureException, CertificateException {
+    @Tracing(namespace = "validateSigned")
+    public static String validateSigned(String publicKey, String data, LambdaLogger logger) throws IOException, SignatureException {
         var response = new JSONObject();
         try {
             byte[] image = Base64.decode(data);
             DefaultBarcodeDecoder defbarcodeDecoder = new DefaultBarcodeDecoder();
             var base45 = defbarcodeDecoder.decodeToString(image, Barcode.BarcodeType.QR, null);
-            if (base45.startsWith(DGCConstants.DGC_V1_HEADER)) {
-               base45 = base45.substring(DGCConstants.DGC_V1_HEADER.length());
-            }
-            // Base45 decode into a compressed CWT ...
-            //
-            byte[] compressedCwt = Base45.getDecoder().decode(base45);
-            // De-compress
-            if (!Zlib.isCompressed(compressedCwt)) {
-            }
-            byte[] cwt = Zlib.decompress(compressedCwt, false);
-            // OK, we now have the uncompressed CWT, lets verify it ...
-            CoseSign1_Object cose = CoseSign1_Object.decode(cwt);
-            cose.verifySignature(generatePublicKey(publicKey, logger));
-            var cwtVerif = cose.getCwt();
-            CBORObject cbor = cwtVerif.getClaim(99);
-            return cbor.ToJSONString();
+            return extractFromQRContent(publicKey, logger, base45);
        } catch ( SignatureException  | BarcodeException e) {
-           buildResponse(response, false, e.getMessage());
+           buildResponse(response, false, "", e.getMessage());
        } 
         return response.toString();
     }
 
-    private static void buildResponse(JSONObject response, boolean ok, Object out) {
+
+    private static String extractFromQRContent(String publicKey, LambdaLogger logger, String base45)
+            throws ZipException, SignatureException {
+        if (base45.startsWith(DGCConstants.DGC_V1_HEADER)) {
+           base45 = base45.substring(DGCConstants.DGC_V1_HEADER.length());
+        }
+        // Base45 decode into a compressed CWT ...
+        //
+        byte[] compressedCwt = Base45.getDecoder().decode(base45);
+        // De-compress
+        return decompressInfo(publicKey, logger, compressedCwt);
+    }
+
+
+    private static String decompressInfo(String publicKey, LambdaLogger logger, byte[] compressedCwt)
+            throws ZipException, SignatureException {
+        if (!Zlib.isCompressed(compressedCwt)) {
+            throw new ZipException("ERROR: Not compressed information");
+        }
+        byte[] cwt = Zlib.decompress(compressedCwt, false);
+        // OK, we now have the uncompressed CWT, lets verify it ...
+        var cose = CoseSign1_Object.decode(cwt);
+        cose.verifySignature(generatePublicKey(publicKey, logger));
+        var cwtVerif = cose.getCwt();
+        CBORObject cbor = cwtVerif.getClaim(99);
+        var jsonString = cbor.ToJSONString(); // ugly json
+        return jsonString.substring(1, jsonString.length() - 1).replace("\\", "");
+    }
+
+    private static void buildResponse(JSONObject response, boolean ok, String message, Object payLoad) {
         response.put("Success", ok);
-        response.put("MessageError", "");
-        response.put("Payload",out);
+        response.put("MessageError", message);
+        response.put("Payload", payLoad);
     }
  
+    @Tracing(namespace = "validatePDFVaccineCertificate")
     public static String validatePDFVaccineCertificate(String pubKey,String pdfContents, LambdaLogger logger) 
-        throws SignatureException, CertificateException{
+        throws SignatureException{
         var payload  = "";
         var response = new JSONObject();
         String qrimageB64 = extraeQRImageB64(pdfContents, logger);
@@ -147,9 +163,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
               logger.log(String.format("ERROR: validating certificate , %s", e.getMessage()));
             }
         } else {
-            response.put("Success", "false");
-            response.put("MessageError", "No se pudo extraer el QRCode del PDF ingresado.");
-            response.put("Payload","");
+            buildResponse(response, false, "ERROR: QRCode not found", "");
             payload = response.toString();
         }
         return payload;
