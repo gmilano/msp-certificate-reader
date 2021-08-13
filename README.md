@@ -14,6 +14,16 @@ Feel free to deploy this service in your own infrastructure or use the provided 
 
 The entry point for the API [https://api.msp-uy.com/validate](https://api.msp-uy.com/validate)
 
+### Use Case: Online check of certificate
+
+The UY certificate to be uploaded for users is a pdf with a QR inside, so the service allow to receive pdf as binary. 
+
+### Use Case: Check the content inside QR code
+
+In this case the information from the QR is read by some Scanner and send to the service as base45 text in the body.
+
+## How to call use the service
+
 ## Commandline
 
 Send a PDF
