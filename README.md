@@ -12,18 +12,20 @@ Feel free to deploy this service in your own infrastructure or use the provided 
 
 # I just want to use your hosted service
 
+The entry point for the API [https://api.msp-uy.com/validate](https://api.msp-uy.com/validate)
+
 ## Commandline
 
 Send a PDF
 ```
-curl --request POST 'https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate' \
+curl --request POST 'https://api.msp-uy.com/validate' \
 --data-binary '@/Users/gmilano/Documents/Genexus/qrvacunas/certificadogaston.pdf'
 ```
 
 Send the Content in Base45 read from a QR Code
 
 ```
-curl --location --request POST 'https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate' \
+curl --location --request POST 'https://api.msp-uy.com/validatee' \
 --header 'Content-Type: text/plain' \
 --data-raw '<base45 string, usually read from some QR Scanner>'
 ```
@@ -42,7 +44,7 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch("https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate", requestOptions)
+fetch("https://api.msp-uy.com/validate", requestOptions)
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.log('error', error));
@@ -55,7 +57,7 @@ fetch("https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate", request
 MediaType mediaType = MediaType.parse("application/pdf");
 RequestBody body = RequestBody.create(mediaType, "<file contents here>");
 Request request = new Request.Builder()
-  .url("https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate")
+  .url("https://api.msp-uy.com/validate")
   .method("POST", body)
   .addHeader("Content-Type", "application/pdf")
   .build();
