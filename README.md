@@ -13,9 +13,19 @@ Feel free to deploy this service in your own infrastructure or use the provided 
 # I just want to use your hosted service
 
 ## Commandline
+
+Send a PDF
 ```
 curl --request POST 'https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate' \
 --data-binary '@/Users/gmilano/Documents/Genexus/qrvacunas/certificadogaston.pdf'
+```
+
+Send the Content in Base45 read from a QR Code
+
+```
+curl --location --request POST 'https://t0rzbqh2hh.execute-api.us-east-2.amazonaws.com/validate' \
+--header 'Content-Type: text/plain' \
+--data-raw '<base45 string, usually read from some QR Scanner>'
 ```
 
 ## Javascript
@@ -121,6 +131,13 @@ cdk deploy
 Be sure to set an environment variable "pubkey" in your Lambda AWS environment. [Set Env var in AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html)
 
 The public key is provided by AGESIC.
+
+
+# Scanner Sample
+
+I create a simple Scanner sample in GeneXus using this service. I created a very simple Android and iOS native application.
+
+If you want to test [Validator App](https://apps5.genexus.com/msp-utils/developermenu.html?qrcode)
 
 
 
