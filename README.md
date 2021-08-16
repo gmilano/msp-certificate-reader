@@ -35,7 +35,7 @@ curl --request POST 'https://api.msp-uy.com/validate' \
 Send the Content in Base45 read from a QR Code
 
 ```
-curl --location --request POST 'https://api.msp-uy.com/validatee' \
+curl --location --request POST 'https://api.msp-uy.com/validate' \
 --header 'Content-Type: text/plain' \
 --data-raw '<base45 string, usually read from some QR Scanner>'
 ```
